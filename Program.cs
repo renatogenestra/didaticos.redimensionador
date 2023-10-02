@@ -15,6 +15,7 @@ namespace didaticos.redimensionador
         static void Main(string[] args)
         {
             Console.WriteLine("Iniciando o Redimensionador");
+            
             Thread thread = new Thread(Redimensionar);
             thread.Start();
         }
@@ -22,21 +23,25 @@ namespace didaticos.redimensionador
         #region Redimensionar
         static void Redimensionar() 
         {
+            Console.WriteLine("Verificando Dietórios...");
 
             string diretorioentrada = "Aquivos_Entrada";
+            Console.Write(".");
+            
             string diretorioredimensionado = "Aquivo_Redimensionado";
+            Console.Write(".");
             string diretoriofinalizados = "Aquivos_Finalizados";
-
+            Console.Write(".");
             if (!Directory.Exists(diretorioentrada))
             {
                 Directory.CreateDirectory(diretorioentrada);
-            }      
-           
+            }
+            Console.Write(".");
             if (!Directory.Exists(diretorioredimensionado))
             {
                 Directory.CreateDirectory(diretorioredimensionado);
             }
-            
+            Console.Write(".");
             if (!Directory.Exists(diretoriofinalizados))
             {
                 Directory.CreateDirectory(diretoriofinalizados);
@@ -48,32 +53,42 @@ namespace didaticos.redimensionador
             while (true)
             {
                 var arquivosEntrada = Directory.EnumerateFiles(diretorioentrada);
-                int AlturaThumb200 = 200;
-                int AlturaThumb100 = 100;
-
-                foreach (var aquivo in arquivosEntrada)
+                int valida = arquivosEntrada.Count();
+                Console.WriteLine("Escaneando Arquivos...");
+                if (valida > 0) 
                 {
+                    int AlturaThumb200 = 200;
+                    int AlturaThumb100 = 100;
 
-                    fileStream = new FileStream(aquivo, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
-                    fileInfo = new FileInfo(aquivo);
+                    Console.WriteLine("Iniciando Redimensionamentos...");
 
-                    string caminho200 = Environment.CurrentDirectory + @"\" + diretorioredimensionado + @"\200px" + DateTime.Now.Millisecond + fileInfo.Name;
-                    string caminho100 = Environment.CurrentDirectory + @"\" + diretorioredimensionado + @"\100px" + DateTime.Now.Millisecond + fileInfo.Name;
+                    foreach (var aquivo in arquivosEntrada)
+                    {
 
-
-                    Redimensionador(Image.FromStream(fileStream), AlturaThumb200, caminho200);
-                    Redimensionador(Image.FromStream(fileStream), AlturaThumb100, caminho100);
+                        fileStream = new FileStream(aquivo, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                        fileInfo = new FileInfo(aquivo);
 
 
-                    fileStream.Close();
+                        string caminho200 = Environment.CurrentDirectory + @"\" + diretorioredimensionado + @"\200px" + DateTime.Now.Millisecond + fileInfo.Name;
+                        string caminho100 = Environment.CurrentDirectory + @"\" + diretorioredimensionado + @"\100px" + DateTime.Now.Millisecond + fileInfo.Name;
 
-                    string caminhoFinalizado = Environment.CurrentDirectory + @"\" + diretoriofinalizados + @"\" + fileInfo.Name;
-                    fileInfo.MoveTo(caminhoFinalizado);
+                        Console.WriteLine($"Redimensionando {fileInfo.Name}");
+                        Redimensionador(Image.FromStream(fileStream), AlturaThumb200, caminho200);
+                        Redimensionador(Image.FromStream(fileStream), AlturaThumb100, caminho100);
 
+
+                        fileStream.Close();
+
+                        string caminhoFinalizado = Environment.CurrentDirectory + @"\" + diretoriofinalizados + @"\" + fileInfo.Name;
+                        Console.WriteLine("Movendo arquivo finalizado...");
+                        fileInfo.MoveTo(caminhoFinalizado);
+
+                    }
                 }
-                    
-
+                
+                
                 Thread.Sleep(new TimeSpan(0, 0, 3));
+                
             }
         
         }
